@@ -1,6 +1,6 @@
 # RAG Chatbot
 
-Find the chatbot here: [Chatbot Interface](https://dummywebsite.com)
+Find the chatbot here: [Chatbot Interface](https://rag-pipeline-inflection-6644336000c4.herokuapp.com/)
 
 This web app is a customized Retrieval-Augmented Generation (RAG) chatbot built using Langchain, OpenAI's GPT, and Python. The chatbot is specifically tailored for Inflection AI, providing detailed information and assistance related to their services and products.
 
@@ -15,7 +15,7 @@ This chatbot has no affiliation to Inflection AI, it is simply built as a person
 
 ## How to Use
 
-1. **Visit the Chatbot Interface**: Access the chatbot by clicking the link above or visiting [Chatbot Interface](https://dummywebsite.com).
+1. **Visit the Chatbot Interface**: Access the chatbot by clicking the link above or visiting [Chatbot Interface](https://rag-pipeline-inflection-6644336000c4.herokuapp.com/).
 2. **Ask Questions**: Feel free to ask any questions about Inflection AI. The chatbot will provide responses based on the information available in its knowledge base.
 3. **Interactive Conversation**: Engage in a conversational manner to get detailed answers and explore different aspects of Inflection AI.
 
