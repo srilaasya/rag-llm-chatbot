@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"></script>
+</head>
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">Chatbot Interface</h1>
+            <div id="chatbox" class="box" style="height: 400px; overflow-y: scroll;">
+                <div id="messages"></div>
+            </div>
+            <div class="field has-addons">
+                <div class="control is-expanded">
+                    <input id="userInput" class="input" type="text" placeholder="Type your message here...">
+                </div>
+                <div class="control">
+                    <button id="sendButton" class="button is-primary">Send</button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script>
+        // Fetch initial greeting when the page loads
+        window.onload = function() {
+            fetch("/initial_greeting/")
+                .then(response => response.json())
+                .then(data => {
+                    addMessageToChat("Bot", data.response);
+                })
+                .catch(error => {
+                    console.error("Error fetching initial greeting:", error);
+                    addMessageToChat("Error", "Failed to load initial greeting.");
+                });
+        };
+        
+        document.getElementById("sendButton").addEventListener("click", function() {
+            let inputField = document.getElementById("userInput");
+            let message = inputField.value.trim();
+            if (message) {
+                addMessageToChat("You", message);
+                inputField.value = "";
+                fetch("/chat/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({message: message})
+                }).then(response => response.json())
+                  .then(data => {
+                      addMessageToChat("Bot", data.response);
+                  })
+                  .catch(error => {
+                      console.error("Error:", error);
+                      addMessageToChat("Error", "Something went wrong. Please try again.");
+                  });
+            }
+        });
+
+        function addMessageToChat(sender, message) {
+            let messageContainer = document.createElement("div");
+            messageContainer.classList.add("message-container");
+            messageContainer.innerHTML = `<strong>${sender}:</strong> ${message}`;
+            document.getElementById("messages").appendChild(messageContainer);
+            document.getElementById("chatbox").scrollTop = document.getElementById("chatbox").scrollHeight;
+        }
+    </script>
+</body>
+</html>

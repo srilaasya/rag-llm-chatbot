@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+python-dotenv
+langchain
+langchain_chroma
+langchain-openai
+langchain-community
+langchain-core
+gunicorn
+pydantic
+beautifulsoup4
