@@ -14,6 +14,7 @@ from langchain_core.output_parsers import StrOutputParser
 # Load environment variables
 dotenv.load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
+USER_AGENT = os.getenv("USER_AGENT")
 
 # Initialize LangChain components
 
@@ -137,6 +138,7 @@ def process_user_message(message_content, conversation_context):
         }
     )
 
+    print("OpenAI response:", response)
     # Append the AI's response to the conversation context
     conversation_context.append(AIMessage(content=response["answer"]))
 
