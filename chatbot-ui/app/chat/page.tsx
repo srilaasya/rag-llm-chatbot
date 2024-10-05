@@ -1,15 +1,30 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import ChatInterface from '../../components/ChatInterface'
 
 export default function Chat() {
     const [messages, setMessages] = useState([])
+    const [companyName, setCompanyName] = useState('')
+    const searchParams = useSearchParams()
 
     useEffect(() => {
         console.log('Chat page mounted');
         fetchInitialGreeting();
+        extractCompanyName();
     }, [])
+
+    const extractCompanyName = () => {
+        const website = searchParams.get('website')
+        if (website) {
+            const url = new URL(website)
+            const domain = url.hostname.split('.')
+            setCompanyName(domain[domain.length - 2].charAt(0).toUpperCase() + domain[domain.length - 2].slice(1))
+        } else {
+            setCompanyName('AI')
+        }
+    }
 
     const fetchInitialGreeting = async () => {
         try {
@@ -44,5 +59,5 @@ export default function Chat() {
         }
     }
 
-    return <ChatInterface messages={messages} onSendMessage={handleSendMessage} />
+    return <ChatInterface messages={messages} onSendMessage={handleSendMessage} companyName={companyName} />
 }

@@ -1,4 +1,4 @@
-import { ChakraProvider } from '@chakra-ui/react'
+import { ChakraProvider, Box } from '@chakra-ui/react'
 import '../styles/globals.css'
 
 export default function RootLayout({
@@ -9,7 +9,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ChakraProvider>{children}</ChakraProvider>
+        <ChakraProvider>
+          <Box
+            display="flex"
+            flexDirection="column"
+            minHeight="100vh"
+            justifyContent="center"
+            alignItems="center"
+            bg="gray.50"
+          >
+            {children}
+          </Box>
+        </ChakraProvider>
       </body>
     </html>
   )

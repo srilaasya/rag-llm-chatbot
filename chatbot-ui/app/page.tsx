@@ -23,7 +23,7 @@ export default function Home() {
       console.log('Crawl response:', data);
       if (data.success) {
         console.log('Crawl successful, navigating to /chat');
-        router.push('/chat');
+        router.push(`/chat?website=${encodeURIComponent(website)}`);
       } else {
         console.log('Crawl failed:', data.error);
         throw new Error(data.error || 'Failed to crawl website')

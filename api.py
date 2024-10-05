@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import traceback
+# import traceback
 from langchain_handler import crawl_website, initialize_langchain, process_user_message, conversational_retrieval_chain
 
 # Create the Flask app instance
@@ -27,7 +27,7 @@ def crawl():
             return jsonify({"error": "Failed to initialize LangChain", "success": False}), 500
     except Exception as e:
         print(f"An error occurred during crawling: {str(e)}")
-        print(traceback.format_exc())
+        # print(traceback.format_exc())
         return jsonify({"error": str(e), "success": False}), 500
 
 @app.route('/chat', methods=['POST'])
@@ -45,8 +45,8 @@ def chat():
         return jsonify({"response": response})
     except Exception as e:
         print(f"An error occurred in /chat: {str(e)}")
-        print("Full traceback:")
-        print(traceback.format_exc())
+        # print("Full traceback:")
+        # print(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
 
 # @app.route('/initial_greeting', methods=['GET'])
