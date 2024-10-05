@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 # import traceback
-from langchain_handler import crawl_website, initialize_langchain, process_user_message, conversational_retrieval_chain
+from langchain_handler import crawl_website, initialize_langchain, process_user_message, clear_vector_db
 
 # Create the Flask app instance
 app = Flask(__name__)
@@ -9,6 +9,11 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Global variable to track LangChain initialization
 langchain_initialized = False
+
+@app.route('/end_session', methods=['POST'])
+def end_session():
+    clear_vector_db()
+    return jsonify({"message": "Session ended and vector DB cleared"}), 200
 
 @app.route('/crawl', methods=['POST'])
 def crawl():

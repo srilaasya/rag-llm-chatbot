@@ -13,8 +13,22 @@ export default function ChatInterface({ messages, onSendMessage, companyName }) 
         }
     }
 
+    const endSession = async () => {
+        try {
+            await fetch('/api/end_session', { method: 'POST' });
+            console.log('Session ended successfully');
+        } catch (error) {
+            console.error('Error ending session:', error);
+        }
+    };
+
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+
+        // Call endSession when component unmounts
+        return () => {
+            endSession();
+        };
     }, [messages])
 
     return (

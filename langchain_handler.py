@@ -1,7 +1,9 @@
 __all__ = ['crawl_website', 'initialize_langchain', 'process_user_message', 'conversational_retrieval_chain']
+from chromadb.config import Settings
 
 import os
 import dotenv
+import chromadb
 from langchain_openai import ChatOpenAI
 from langchain_community.document_loaders import WebBaseLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -15,6 +17,11 @@ from langchain_core.output_parsers import StrOutputParser
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
+from chromadb.config import Settings
+import uuid
+
+chroma_client = None
+collection_name = None
 
 # Load environment variables
 dotenv.load_dotenv()
@@ -66,8 +73,25 @@ def initialize_langchain(crawled_data):
             splits = text_splitter.split_text(page['content'])
             all_splits.extend(splits)
 
-        vectorstore = Chroma.from_texts(texts=all_splits, embedding=OpenAIEmbeddings())
-        retriever = vectorstore.as_retriever(k=4)
+        collection_name = f"session_{uuid.uuid4().hex}"
+
+        # Initialize Chroma client with a persistent directory
+        persist_directory = os.path.join(os.getcwd(), "chroma_db")
+        chroma_client = chromadb.PersistentClient(path=persist_directory)
+        
+        # Create vectorstore with the unique collection name
+        embedding_function = OpenAIEmbeddings()
+        vectorstore = Chroma(
+            collection_name=collection_name,
+            embedding_function=embedding_function,
+            client=chroma_client,
+            persist_directory=persist_directory
+        )
+
+        # Add documents to the vectorstore
+        vectorstore.add_texts(texts=all_splits)
+
+        retriever = vectorstore.as_retriever(search_kwargs={"k": 4})
 
         SYSTEM_TEMPLATE = """
         Answer the user's questions based on the below context. Answer like you're an AI assistant trained on the company's website data. The user's satisfaction is your utmost priority, make them feel welcome and safe, talk like a human in first person and make sure they are satisfied and are happy with the information you provide. 
@@ -118,8 +142,20 @@ def initialize_langchain(crawled_data):
 
     except Exception as e:
         print(f"Error initializing LangChain: {str(e)}")
-        print(traceback.format_exc())
+        # print(traceback.format_exc())
         return False
+
+def clear_vector_db():
+    global chroma_client, collection_name
+    if chroma_client and collection_name:
+        try:
+            chroma_client.delete_collection(collection_name)
+            print(f"Deleted Chroma collection: {collection_name}")
+            collection_name = None
+        except Exception as e:
+            print(f"Error deleting Chroma collection: {str(e)}")
+    else:
+        print("No Chroma collection to delete")
 
 def process_user_message(message_content, conversation_context):
     # Add the user's message to the context
