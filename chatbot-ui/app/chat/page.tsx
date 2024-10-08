@@ -27,24 +27,23 @@ export default function Chat() {
     }, [companyName])
 
     const extractCompanyNameAndFavicon = () => {
-        const website = searchParams.get('website')
+        const website = searchParams?.get('website'); // Use optional chaining
         console.log('Extracted from URL - website:', website);
 
         if (website) {
             try {
-                const url = new URL(website)
-                const domain = url.hostname.split('.')
-                const name = domain[domain.length - 2].charAt(0).toUpperCase() + domain[domain.length - 2].slice(1)
+                const url = new URL(website);
+                const domain = url.hostname.split('.');
+                const name = domain[domain.length - 2].charAt(0).toUpperCase() + domain[domain.length - 2].slice(1);
                 console.log('Setting company name:', name);
-                setCompanyName(name)
+                setCompanyName(name);
             } catch (error) {
-                console.error('Error parsing website URL:', error)
-                setCompanyName('AI')
+                console.error('Error parsing website URL:', error);
             }
         } else {
-            setCompanyName('AI')
+            console.warn('No website parameter found in searchParams');
         }
-    }
+    };
 
     const fetchInitialGreeting = async () => {
         try {
