@@ -1,71 +1,74 @@
-'use client'
+"use client";
 
-import { useState, useEffect, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
-import ChatInterface from '../../components/ChatInterface'
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Form from "@components/Form";
 
-interface Message {
-    sender: string;
-    content: string;
-}
+const UpdatePrompt = () => {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const promptId = searchParams.get("id");
 
-export default function Chat() {
-    const [messages, setMessages] = useState<Message[]>([])
-    const [companyName, setCompanyName] = useState<string>('')
-    const searchParams = useSearchParams()
+    const [post, setPost] = useState({ prompt: "", tag: "" });
+    const [submitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
-        console.log('Chat page mounted');
-        extractCompanyNameAndFavicon();
-    }, [])
+        const getPromptDetails = async () => {
+            const response = await fetch(`/api/prompt/${promptId}`);
+            const data = await response.json();
 
-    const extractCompanyNameAndFavicon = () => {
-        const website = searchParams?.get('website'); // Use optional chaining
-        console.log('Extracted from URL - website:', website);
+            setPost({
+                prompt: data.prompt,
+                tag: data.tag,
+            });
+        };
 
-        if (website) {
-            try {
-                const url = new URL(website);
-                const domain = url.hostname.split('.');
-                const name = domain[domain.length - 2].charAt(0).toUpperCase() + domain[domain.length - 2].slice(1);
-                console.log('Setting company name:', name);
-                setCompanyName(name);
-            } catch (error) {
-                console.error('Error parsing website URL:', error);
-            }
-        } else {
-            console.warn('No website parameter found in searchParams');
-        }
-    }
+        if (promptId) getPromptDetails();
+    }, [promptId]);
 
-    const handleSendMessage = async (message: string) => {
-        setMessages(prev => [...prev, { sender: 'You', content: message }]);
+    const updatePrompt = async (e) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+
+        if (!promptId) return alert("Missing PromptId!");
 
         try {
-            const response = await fetch('/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message }),
+            const response = await fetch(`/api/prompt/${promptId}`, {
+                method: "PATCH",
+                body: JSON.stringify({
+                    prompt: post.prompt,
+                    tag: post.tag,
+                }),
             });
-            const data = await response.json();
+
             if (response.ok) {
-                setMessages(prev => [...prev, { sender: 'AI', content: data.response }]);
-            } else {
-                throw new Error(data.error || 'Failed to get response');
+                router.push("/");
             }
         } catch (error) {
-            console.error('Error sending message:', error);
-            setMessages(prev => [...prev, { sender: 'AI', content: 'An error occurred. Please try again.' }]);
+            console.log(error);
+        } finally {
+            setIsSubmitting(false);
         }
-    }
+    };
 
     return (
+        <Form
+            type="Edit"
+            post={post}
+            setPost={setPost}
+            submitting={submitting}
+            handleSubmit={updatePrompt}
+        />
+    );
+};
+
+// Parent component to wrap UpdatePrompt in Suspense
+const Page = () => {
+    return (
         <Suspense fallback={<div>Loading...</div>}>
-            <ChatInterface
-                messages={messages}
-                onSendMessage={handleSendMessage}
-                companyName={companyName}
-            />
+            <UpdatePrompt />
         </Suspense>
     );
-}
+};
+
+export default Page;
