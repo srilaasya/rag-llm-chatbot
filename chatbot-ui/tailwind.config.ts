@@ -8,12 +8,14 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+      fontFamily: {
+        sans: ['var(--font-montserrat)', 'sans-serif'],
+      },
+      borderRadius: {
+        'full': '9999px',
       },
     },
   },
   plugins: [],
-};
+}
 export default config;

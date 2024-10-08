@@ -13,33 +13,32 @@ export default function Home() {
     setIsLoading(true)
     setError('')
     try {
-      console.log('Sending crawl request for:', website);
       const response = await fetch('/api/crawl', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ website }),
       })
-      const data = await response.json();
-      console.log('Crawl response:', data);
+      const data = await response.json()
+      console.log("Response from server:", data);  // Add this line for debugging
       if (data.success) {
-        console.log('Crawl successful, navigating to /chat');
-        router.push(`/chat?website=${encodeURIComponent(website)}`);
+        const faviconPath = data.faviconPath || '/favicon.ico'
+        console.log("Using faviconPath:", faviconPath);  // Add this line for debugging
+        router.push(`/chat?website=${encodeURIComponent(website)}&favicon=${encodeURIComponent(faviconPath)}`);
       } else {
-        console.log('Crawl failed:', data.error);
         throw new Error(data.error || 'Failed to crawl website')
       }
     } catch (error) {
       console.error('Error:', error)
-      setError(error.message || 'An error occurred. Please try again.')
+      setError(error instanceof Error ? error.message : 'An error occurred. Please try again.')
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <>
+    <div className="flex min-h-screen items-center justify-center">
       <InputForm onSubmit={handleSubmit} isLoading={isLoading} />
-      {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
-    </>
+      {error && <p className="text-red-500 mt-4 text-center">{error}</p>}
+    </div>
   )
 }

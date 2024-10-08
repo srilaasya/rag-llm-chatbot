@@ -11,7 +11,11 @@ export default async function handler(req, res) {
 
             console.log('Response from Python server:', response.data);
             if (response.data.success) {
-                res.status(200).json({ success: true, message: "Crawling complete" });
+                res.status(200).json({
+                    success: true,
+                    message: "Crawling complete",
+                    faviconPath: response.data.faviconPath
+                });
             } else {
                 res.status(500).json({ success: false, error: response.data.error });
             }

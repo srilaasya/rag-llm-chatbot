@@ -4,25 +4,36 @@ import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import ChatInterface from '../../components/ChatInterface'
 
+interface Message {
+    sender: string;
+    content: string;
+}
+
 export default function Chat() {
-    const [messages, setMessages] = useState([])
-    const [companyName, setCompanyName] = useState('')
+    const [messages, setMessages] = useState<Message[]>([])
+    const [companyName, setCompanyName] = useState<string>('')
+    const [faviconPath, setFaviconPath] = useState<string>('/favicon.ico')
     const searchParams = useSearchParams()
 
     useEffect(() => {
         console.log('Chat page mounted');
         fetchInitialGreeting();
-        extractCompanyName();
+        extractCompanyNameAndFavicon();
     }, [])
 
-    const extractCompanyName = () => {
-        const website = searchParams.get('website')
+    const extractCompanyNameAndFavicon = () => {
+        const website = searchParams?.get('website')
+        const favicon = searchParams?.get('favicon')
+        console.log("Extracted favicon:", favicon);  // Add this line for debugging
         if (website) {
             const url = new URL(website)
             const domain = url.hostname.split('.')
             setCompanyName(domain[domain.length - 2].charAt(0).toUpperCase() + domain[domain.length - 2].slice(1))
         } else {
             setCompanyName('AI')
+        }
+        if (favicon) {
+            setFaviconPath(decodeURIComponent(favicon))
         }
     }
 
@@ -38,7 +49,7 @@ export default function Chat() {
         }
     }
 
-    const handleSendMessage = async (message) => {
+    const handleSendMessage = async (message: string) => {
         setMessages(prev => [...prev, { sender: 'You', content: message }])
 
         try {
@@ -59,5 +70,10 @@ export default function Chat() {
         }
     }
 
-    return <ChatInterface messages={messages} onSendMessage={handleSendMessage} companyName={companyName} />
+    return <ChatInterface
+        messages={messages}
+        onSendMessage={handleSendMessage}
+        companyName={companyName}
+        faviconPath={faviconPath}
+    />
 }
