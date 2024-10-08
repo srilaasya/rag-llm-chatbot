@@ -22,7 +22,7 @@ app.use(express.static(path.join(__dirname, 'frontend/.next')));
 
 // Proxy API requests to the Python backend
 app.use('/api', createProxyMiddleware({
-    target: 'http://localhost:5000',
+    target: 'https://rag-llm-chatbot-b66d8f1f51a1.herokuapp.com/', // Update this line
     changeOrigin: true
 }));
 
