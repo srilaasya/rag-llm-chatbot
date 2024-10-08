@@ -20,7 +20,6 @@ module.exports = {
         },
     },
     rules: {
-        // Place to specify ESLint rules. Can be used to overwrite rules specified from the extended configs
         'react/react-in-jsx-scope': 'off', // Not needed with React 17+
         '@typescript-eslint/no-explicit-any': 'warn', // Warn on usage of 'any' type
         'prettier/prettier': 'error', // Make Prettier errors show as ESLint errors
