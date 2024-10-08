@@ -13,19 +13,22 @@ export default function Home() {
     setIsLoading(true)
     setError('')
     try {
+      console.log("Sending crawl request for website:", website);
       const response = await fetch('/api/crawl', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ website }),
       })
       const data = await response.json()
-      console.log("Response from server:", data);  // Add this line for debugging
+      console.log("Response from server:", data);
       if (data.success) {
-        const faviconPath = data.faviconPath || '/favicon.ico'
-        console.log("Using faviconPath:", faviconPath);  // Add this line for debugging
-        router.push(`/chat?website=${encodeURIComponent(website)}&favicon=${encodeURIComponent(faviconPath)}`);
+        console.log("Crawling successful, attempting to navigate to chat page");
+        const chatUrl = `/chat?website=${encodeURIComponent(website)}`;
+        console.log("Navigation URL:", chatUrl);
+        router.push(chatUrl);
+        console.log("Navigation function called");
       } else {
-        throw new Error(data.error || 'Failed to crawl website')
+        throw new Error(data.error || data.message || 'Failed to crawl website')
       }
     } catch (error) {
       console.error('Error:', error)

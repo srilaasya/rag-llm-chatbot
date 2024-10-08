@@ -14,7 +14,7 @@ export default async function handler(req, res) {
                 res.status(200).json({
                     success: true,
                     message: "Crawling complete",
-                    faviconPath: response.data.faviconPath
+                    faviconPath: "/favicon.ico"
                 });
             } else {
                 res.status(500).json({ success: false, error: response.data.error });

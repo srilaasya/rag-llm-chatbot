@@ -21,18 +21,29 @@ def crawl():
     try:
         website = request.json['website']
         print(f"Received request to crawl: {website}")
+        
         crawled_data = crawl_website(website)
         print(f"Crawled {len(crawled_data)} pages")
+        
+        if not crawled_data:
+            return jsonify({
+                "message": "No pages were crawled. The website might be inaccessible.",
+                "success": False,
+            }), 400
+        
         if initialize_langchain(crawled_data):
             langchain_initialized = True
             print("LangChain initialized successfully")
-            return jsonify({"message": "Crawling and initialization complete", "success": True})
+            return jsonify({
+                "message": "Crawling and initialization complete",
+                "success": True
+                # "favicon_path": '/favicon.ico'
+            })
         else:
             print("Failed to initialize LangChain")
             return jsonify({"error": "Failed to initialize LangChain", "success": False}), 500
     except Exception as e:
         print(f"An error occurred during crawling: {str(e)}")
-        # print(traceback.format_exc())
         return jsonify({"error": str(e), "success": False}), 500
 
 @app.route('/chat', methods=['POST'])

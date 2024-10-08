@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import ChatInterface from '../../components/ChatInterface'
 
 interface Message {
@@ -12,37 +12,51 @@ interface Message {
 export default function Chat() {
     const [messages, setMessages] = useState<Message[]>([])
     const [companyName, setCompanyName] = useState<string>('')
-    const [faviconPath, setFaviconPath] = useState<string>('/favicon.ico')
+    // const [faviconPath, setFaviconPath] = useState<string>('/favicon.ico')
     const searchParams = useSearchParams()
+    const router = useRouter()
 
     useEffect(() => {
         console.log('Chat page mounted');
-        fetchInitialGreeting();
         extractCompanyNameAndFavicon();
     }, [])
 
+    useEffect(() => {
+        if (companyName) {
+            fetchInitialGreeting();
+        }
+    }, [companyName])
+
     const extractCompanyNameAndFavicon = () => {
         const website = searchParams?.get('website')
-        const favicon = searchParams?.get('favicon')
-        console.log("Extracted favicon:", favicon);  // Add this line for debugging
+        // const favicon = searchParams.get('favicon')
+        console.log('Extracted from URL - website:', website);
+
         if (website) {
-            const url = new URL(website)
-            const domain = url.hostname.split('.')
-            setCompanyName(domain[domain.length - 2].charAt(0).toUpperCase() + domain[domain.length - 2].slice(1))
+            try {
+                const url = new URL(website)
+                const domain = url.hostname.split('.')
+                const name = domain[domain.length - 2].charAt(0).toUpperCase() + domain[domain.length - 2].slice(1)
+                console.log('Setting company name:', name);
+                setCompanyName(name)
+            } catch (error) {
+                console.error('Error parsing website URL:', error)
+                setCompanyName('AI')
+            }
         } else {
             setCompanyName('AI')
-        }
-        if (favicon) {
-            setFaviconPath(decodeURIComponent(favicon))
         }
     }
 
     const fetchInitialGreeting = async () => {
         try {
-            const response = await fetch('/api/initial_greeting');
+            console.log('Fetching initial greeting for company:', companyName);
+            const response = await fetch(`/api/initial_greeting?companyName=${encodeURIComponent(companyName)}`);
             const data = await response.json();
             if (response.ok) {
                 setMessages([{ sender: 'AI', content: data.response }]);
+            } else {
+                console.error('Error fetching initial greeting:', data.error);
             }
         } catch (error) {
             console.error('Error fetching initial greeting:', error);
@@ -70,10 +84,13 @@ export default function Chat() {
         }
     }
 
-    return <ChatInterface
-        messages={messages}
-        onSendMessage={handleSendMessage}
-        companyName={companyName}
-        faviconPath={faviconPath}
-    />
+    return (
+        <>
+            <ChatInterface
+                messages={messages}
+                onSendMessage={handleSendMessage}
+                companyName={companyName as string}
+            />
+        </>
+    )
 }

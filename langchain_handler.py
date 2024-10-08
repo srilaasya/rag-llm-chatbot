@@ -19,6 +19,12 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 from chromadb.config import Settings
 import uuid
+import mimetypes
+
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+
+# Suppress only the single warning from urllib3 needed.
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 chroma_client = None
 collection_name = None
@@ -40,11 +46,18 @@ def crawl_website(start_url, max_pages=30):
     base_domain = urlparse(start_url).netloc
     pages = []
 
+    # Extract company name from URL
+    company_name = urlparse(start_url).netloc.split('.')[-2]
+
+    # # Scrape favicon
+    # favicon_path = scrape_and_save_favicon(start_url, company_name)
+
+
     while to_visit and len(visited) < max_pages:
         url = to_visit.pop(0)
         if url not in visited and urlparse(url).netloc == base_domain:
             try:
-                response = requests.get(url, headers={'User-Agent': USER_AGENT})
+                response = requests.get(url, headers={'User-Agent': USER_AGENT}, verify=False)
                 soup = BeautifulSoup(response.text, 'html.parser')
                 pages.append({'url': url, 'content': soup.get_text()})
                 visited.add(url)
@@ -55,9 +68,40 @@ def crawl_website(start_url, max_pages=30):
                         to_visit.append(new_url)
             except Exception as e:
                 print(f"Error crawling {url}: {e}")
+    
     for i in pages:
         print(i['url'])
+    
     return pages
+
+# def scrape_and_save_favicon(start_url, company_name):
+#     try:
+#         response = requests.get(start_url, headers={'User-Agent': USER_AGENT}, verify=False)
+#         soup = BeautifulSoup(response.text, 'html.parser')
+        
+#         # Try to find favicon link
+#         favicon_link = soup.find('link', rel='icon') or soup.find('link', rel='shortcut icon')
+        
+#         if favicon_link and favicon_link.has_attr('href'):
+#             favicon_url = favicon_link['href']
+#             if not favicon_url.startswith('http'):
+#                 # Handle relative URLs
+#                 favicon_url = urljoin(start_url, favicon_url)
+            
+#             # Download favicon
+#             favicon_response = requests.get(favicon_url)
+#             if favicon_response.status_code == 200:
+#                 # Save favicon
+#                 favicon_dir = os.path.join('chatbot-ui', 'favicons')
+#                 os.makedirs(favicon_dir, exist_ok=True)
+#                 favicon_path = os.path.join(favicon_dir, f"{company_name.lower()}_favicon.ico")
+#                 with open(favicon_path, 'wb') as f:
+#                     f.write(favicon_response.content)
+#                 return f"/favicons/{company_name.lower()}_favicon.ico"
+#     except Exception as e:
+#         print(f"Error scraping favicon: {e}")
+    
+#     return None  # Return a default path if no favicon is found
 
 def initialize_langchain(crawled_data):
     global chat, retriever, document_chain, conversational_retrieval_chain
