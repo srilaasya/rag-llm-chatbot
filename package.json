@@ -1,5 +1,20 @@
 {
+  "name": "rag-llm-chatbot",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "pip install -r requirements.txt && cd chatbot-ui && npm install && npm run build",
+    "start": "node server.js",
+    "dev": "concurrently \"node server.js\" \"cd chatbot-ui && npm run dev\"",
+    "install-deps": "npm install && cd chatbot-ui && npm install"
+  },
   "dependencies": {
-    "axios": "^1.7.7"
+    "express": "^4.17.1",
+    "http-proxy-middleware": "^2.0.1"
+  },
+  "engines": {
+    "node": ">=19.8.1"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1"
   }
 }
