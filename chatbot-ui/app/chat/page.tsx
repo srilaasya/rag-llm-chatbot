@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import ChatInterface from '../../components/ChatInterface'
 
@@ -12,7 +12,6 @@ interface Message {
 export default function Chat() {
     const [messages, setMessages] = useState<Message[]>([])
     const [companyName, setCompanyName] = useState<string>('')
-    // const [faviconPath, setFaviconPath] = useState<string>('/favicon.ico')
     const searchParams = useSearchParams()
     const router = useRouter()
 
@@ -28,8 +27,7 @@ export default function Chat() {
     }, [companyName])
 
     const extractCompanyNameAndFavicon = () => {
-        const website = searchParams?.get('website')
-        // const favicon = searchParams.get('favicon')
+        const website = searchParams.get('website')
         console.log('Extracted from URL - website:', website);
 
         if (website) {
@@ -85,12 +83,12 @@ export default function Chat() {
     }
 
     return (
-        <>
+        <Suspense fallback={<div>Loading...</div>}>
             <ChatInterface
                 messages={messages}
                 onSendMessage={handleSendMessage}
-                companyName={companyName as string}
+                companyName={companyName}
             />
-        </>
+        </Suspense>
     )
 }
