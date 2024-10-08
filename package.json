@@ -2,7 +2,7 @@
   "name": "rag-llm-chatbot",
   "version": "1.0.0",
   "scripts": {
-    "build": "pip install -r requirements.txt && cd chatbot-ui && npm install && npm run build",
+    "heroku-postbuild": "pip install -r requirements.txt && cd chatbot-ui && npm install && npm run build",
     "start": "node server.js",
     "dev": "concurrently \"node server.js\" \"cd chatbot-ui && npm run dev\"",
     "install-deps": "npm install && cd chatbot-ui && npm install"
